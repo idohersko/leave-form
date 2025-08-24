@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leave Request Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f8f9fa; }
+    h2 { color: #333; }
+    label { font-weight: bold; }
+    input, button { margin: 5px 0; padding: 8px; }
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    th { background-color: #f1f1f1; }
+    .range-block { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: #fff; }
+  </style>
+</head>
+<body>
+  <h2>Leave Request Form</h2>
+
+  <label>Your Name:</label><br>
+  <input type="text" id="name" placeholder="Enter your name" required><br><br>
+
+  <div id="ranges"></div>
+  <button type="button" onclick="addRange()">+ Add Leave Period</button><br><br>
+
+  <button onclick="submitForm()">Submit</button>
+
+  <h3>Preview of Submitted Leave Periods</h3>
+  <table id="previewTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpGYjhiG2tCIWzOGZIVGDhW3EBBeNPPmWeH6HGnTPkQC10HZS-gyl6mT3mvCDeBkCu/exec";
+
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function addRange() {
+      const div = document.createElement("div");
+      div.className = "range-block";
+      div.innerHTML = `
+        <label>Start Date:</label><br>
+        <input type="date" class="startDate" required><br>
+        <label>End Date:</label><br>
+        <input type="date" class="endDate" required><br>
+        <label>Description:</label><br>
+        <input type="text" class="description" placeholder="Reason for leave" required><br>
+      `;
+      document.getElementById("ranges").appendChild(div);
+    }
+
+    function submitForm() {
+      const name = document.getElementById("name").value;
+      const ranges = document.getElementsByClassName("range-block");
+      const tbody = document.querySelector("#previewTable tbody");
+
+      let payload = [];
+      tbody.innerHTML = "";
+
+      for (let i = 0; i < ranges.length; i++) {
+        const startDateRaw = ranges[i].querySelector(".startDate").value;
+        const endDateRaw = ranges[i].querySelector(".endDate").value;
+        const description = ranges[i].querySelector(".description").value;
+
+        const startDate = formatDate(startDateRaw);
+        const endDate = formatDate(endDateRaw);
+
+        const row = { name, startDate, endDate, description };
+        payload.push(row);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${name}</td><td>${startDate}</td><td>${endDate}</td><td>${description}</td>`;
+        tbody.appendChild(tr);
+      }
+
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        alert("Leave request submitted and saved to Google Sheet!");
+      }).catch(err => alert("Error: " + err));
+    }
+
+    // Add one block automatically
+    addRange();
+  </script>
+</body>
+</html>
