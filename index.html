@@ -39,10 +39,9 @@
   </table>
 
   <script>
-    // ✅ Replace with your Google Apps Script Web App URL
+    // 🔹 Paste your /exec URL here
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpGYjhiG2tCIWzOGZIVGDhW3EBBeNPPmWeH6HGnTPkQC10HZS-gyl6mT3mvCDeBkCu/exec";
 
-    // Format date to DD/MM/YYYY
     function formatDate(dateStr) {
       if (!dateStr) return "";
       const d = new Date(dateStr);
@@ -93,7 +92,7 @@
       // 🔹 Send to Google Apps Script
       fetch(SCRIPT_URL, {
         method: "POST",
-        mode: "no-cors", // avoids CORS issues
+        mode: "no-cors",  // prevents CORS error
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
